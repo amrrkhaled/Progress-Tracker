@@ -2,6 +2,8 @@ package com.example.progresstracker.ui
 
 import androidx.lifecycle.ViewModel
 import com.example.progresstracker.ui.model.Task
+import com.example.progresstracker.ui.model.TaskStatus
+import com.example.progresstracker.ui.model.TaskType
 import com.example.progresstracker.ui.model.sampleTasks
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,6 +24,24 @@ class TasksScreenViewModel : ViewModel() {
     fun addTask(task: Task) {
         _uiState.update { currentState ->
             currentState.copy(tasks = currentState.tasks + task)
+        }
+    }
+    fun addNewTask() {
+        val newTaskId = (_uiState.value.tasks.maxOfOrNull { it.id } ?: 0) + 1
+        val newTask = Task(id = newTaskId,
+            title = "",
+            description = "",
+            type = TaskType.STUDY, // Default type
+            status = TaskStatus.NOT_STARTED, // Default status
+            progress = 0, // Default progress
+            dueDate = System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000 // Default due date (7 days from now)
+        )
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                isEditing = true,
+                currentTaskId = newTaskId,
+                tasks = listOf(newTask) + currentState.tasks            )
         }
     }
 
