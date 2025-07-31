@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">ProgressTracker</string>
+
+    <string name="status_not_started">Not Started</string>
+    <string name="status_in_progress">In Progress</string>
+    <string name="status_completed">Completed</string>
+
+    <string name="task_due_date">Due Date</string>
+    <string name="task_progress">Progress</string>
+    <string name="task_title">Task Title</string>
+    <string name="task_description">Task Description</string>
+
+    <!-- Task Titles -->
+
+    <string name="task_title_learn_kotlin">Learn Kotlin</string>
+    <string name="task_title_build_ui">Build UI in Compose</string>
+    <string name="task_title_test_app">Write Unit Tests</string>
+
+    <!-- Task Descriptions -->
+    <string name="task_description_kotlin">Read documentation and watch JetBrains Kotlin videos.</string>
+    <string name="task_description_ui">Design the layout using Jetpack Compose components.</string>
+    <string name="task_description_test">Add unit tests for ViewModel and Repository logic.</string>
+
+</resources>
