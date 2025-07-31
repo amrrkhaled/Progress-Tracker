@@ -118,8 +118,8 @@ fun TaskItemViewMode(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Progress: ${task.progress}%", style = MaterialTheme.typography.bodySmall)
-                Text("Streaks: ${task.streaks}", style = MaterialTheme.typography.bodySmall)
+                Text("Progress: ${task.progress}%", style = MaterialTheme.typography.bodyLarge)
+                Text(" ${task.streaks} \uD83D\uDD25", style = MaterialTheme.typography.bodyLarge)
                 Row {
                     IconButton(onClick = { onEditTask(task.id) }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit Task")
