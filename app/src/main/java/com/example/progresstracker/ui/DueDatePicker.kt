@@ -1,41 +1,48 @@
-package com.example.progresstracker.ui
-
-import android.R
-import android.app.DatePickerDialog
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerColors
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
-import java.util.Calendar
+import androidx.compose.ui.graphics.Color
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DueDatePickerDialog(
-    onDateSelected: (Long) -> Unit,
+    onDateSelected: (Long?) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-
-    val datePicker = remember {
-        DatePickerDialog(
-            context,
-            { _, year, month, dayOfMonth ->
-                calendar.set(year, month, dayOfMonth, 0, 0, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                onDateSelected(calendar.timeInMillis)
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH),
-
-        ).apply {
-            setOnDismissListener {
+    val datePickerState = rememberDatePickerState()
+    val datePickerColors = DatePickerDefaults.colors(
+        containerColor = MaterialTheme.colorScheme.surface,
+        titleContentColor = MaterialTheme.colorScheme.primary,
+        selectedDayContainerColor = Color(0xFF6200EE),
+        todayContentColor = Color.Red,
+        // You can add more customizations if needed
+    )
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onDateSelected(datePickerState.selectedDateMillis)
                 onDismiss()
+            }) {
+                Text("OK")
             }
-        }
-    }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
 
-    LaunchedEffect(Unit) {
-        datePicker.show()
+
+    ) {
+        DatePicker(state = datePickerState,
+            colors = datePickerColors)
     }
 }

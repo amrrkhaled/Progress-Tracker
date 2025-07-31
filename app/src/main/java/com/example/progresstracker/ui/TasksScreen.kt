@@ -1,5 +1,6 @@
 package com.example.progresstracker.ui
 
+import android.R.attr.fontWeight
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -101,23 +102,31 @@ fun TasksApp() {
 @Composable
 fun AppTopBar(onIconClick: () -> Unit) {
     CenterAlignedTopAppBar(
-        title = { Text("Progress Tracker") },
+        title = {
+            Text(
+                "Progress Tracker",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+        },
         actions = {
             IconButton(onClick = onIconClick) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add",
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = Color(0xFF444444),
-            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+            containerColor = MaterialTheme.colorScheme.surface,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurface
         )
     )
 }
+
 
 
 

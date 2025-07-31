@@ -1,46 +1,18 @@
 package com.example.progresstracker.ui
 
+import DueDatePickerDialog
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,12 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.progresstracker.ui.model.Task
 import com.example.progresstracker.ui.model.TaskStatus
 import com.example.progresstracker.ui.model.TaskType
 import com.example.progresstracker.utils.formatDate
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -65,9 +35,8 @@ fun TasksList(
     onSave: (Task) -> Unit,
     onEditTask: (Int) -> Unit,
 ) {
-    val tasks = uiState.tasks
     LazyColumn {
-        items(tasks) { task ->
+        items(uiState.tasks) { task ->
             TaskItem(
                 uiState = uiState,
                 task = task,
@@ -79,7 +48,6 @@ fun TasksList(
             )
         }
     }
-
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -93,15 +61,10 @@ fun TaskItem(
     onSave: (Task) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isEditing = uiState.currentTaskId == task.id
-
-    if (!isEditing) TaskItemViewMode(
-        task = task, onDeleteTask = onDeleteTask, onEditTask = onEditTask, modifier = modifier
-    )
-    else {
-        TaskItemEditMode(
-            task = task, onSave = onSave, onCancel = onCancel
-        )
+    if (uiState.currentTaskId == task.id) {
+        TaskItemEditMode(task = task, onSave = onSave, onCancel = onCancel)
+    } else {
+        TaskItemViewMode(task = task, onDeleteTask = onDeleteTask, onEditTask = onEditTask, modifier = modifier)
     }
 }
 
@@ -111,109 +74,60 @@ fun TaskItemViewMode(
     task: Task,
     onEditTask: (Int) -> Unit,
     onDeleteTask: (Int) -> Unit,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val CompletedColor = Color(0xFF4CAF50)     // Green
+    val InProgressColor = Color(0xFFFFC107)    // Amber
+    val NotStartedColor = Color(0xFFB0BEC5)    // Soft Gray
+
+    val borderColor = when (task.status) {
+        TaskStatus.COMPLETED -> CompletedColor
+        TaskStatus.IN_PROGRESS -> InProgressColor
+        TaskStatus.NOT_STARTED -> NotStartedColor
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .border(2.dp, borderColor, RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE6E6E6)
-        ),
+        elevation = CardDefaults.cardElevation(8.dp),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-
-            // Title and Type Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = task.title, style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold, color = Color(0xFF333333)
-                    ), maxLines = 1, overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = task.type.name, style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Medium, color = Color(0xFF888888)
-                    )
-                )
+                Text(task.title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(task.type.name, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium))
             }
-
             Spacer(Modifier.height(8.dp))
-
-            // Description
-            Text(
-                text = task.description, style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color(0xFF444444)
-                ), maxLines = 2, overflow = TextOverflow.Ellipsis
-            )
-
+            Text(task.description, style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(12.dp))
-
-            // Date and Status Row
-            Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Due: ${formatDate(task.dueDate)}",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFF666666)
-                    )
-                )
-                Text(
-                    text = "Status: ${task.status.statusText}",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFF666666)
-                    )
-                )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("Due: ${formatDate(task.dueDate)}", style = MaterialTheme.typography.bodySmall)
+                Text("Status: ${task.status.statusText}", style = MaterialTheme.typography.bodySmall)
             }
-
             Spacer(Modifier.height(8.dp))
-
-            // Progress and Icons Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Progress: ${task.progress}%",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFF666666)
-                    )
-                )
-                Text(
-                    text = "Streaks: ${task.streaks}",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFF666666)
-                    )
-                )
+                Text("Progress: ${task.progress}%", style = MaterialTheme.typography.bodySmall)
+                Text("Streaks: ${task.streaks}", style = MaterialTheme.typography.bodySmall)
                 Row {
-                    IconButton(
-                        onClick = { onEditTask(task.id) },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Edit Task",
-                            tint = Color.Gray
-                        )
+                    IconButton(onClick = { onEditTask(task.id) }) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit Task")
                     }
-
-                    IconButton(
-                        onClick = { onDeleteTask(task.id) }) {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = "Delete Task",
-                            tint = Color.Gray
-                        )
+                    IconButton(onClick = { onDeleteTask(task.id) }) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Delete Task")
                     }
                 }
-
             }
         }
     }
@@ -222,11 +136,8 @@ fun TaskItemViewMode(
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TaskItemEditMode(
-    task: Task, onSave: (Task) -> Unit, onCancel: () -> Unit
-) {
+fun TaskItemEditMode(task: Task, onSave: (Task) -> Unit, onCancel: () -> Unit) {
     val colorScheme = MaterialTheme.colorScheme
-
     var editedTitle by remember { mutableStateOf(task.title) }
     var editedDescription by remember { mutableStateOf(task.description) }
     var editedProgress by remember { mutableStateOf(task.progress.toFloat()) }
@@ -246,33 +157,20 @@ fun TaskItemEditMode(
         colors = CardDefaults.cardColors(containerColor = colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-
-            // Title Input
             OutlinedTextField(
                 value = editedTitle,
                 onValueChange = { editedTitle = it },
                 label = { Text("Title") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color(0xFF999999), unfocusedBorderColor = Color(0xFF999999)
-                )
+                modifier = Modifier.fillMaxWidth()
             )
-
             Spacer(modifier = Modifier.height(12.dp))
-
-            // Description Input
             OutlinedTextField(
                 value = editedDescription,
                 onValueChange = { editedDescription = it },
                 label = { Text("Description") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = colorScheme.primary,
-                    unfocusedBorderColor = colorScheme.outline
-                )
+                modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
-
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded }
@@ -283,11 +181,8 @@ fun TaskItemEditMode(
                     onValueChange = {},
                     label = { Text("Select Type") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
+                    modifier = Modifier.menuAnchor().fillMaxWidth()
                 )
-
                 ExposedDropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
@@ -302,90 +197,47 @@ fun TaskItemEditMode(
                         )
                     }
                 }
-
             }
             Spacer(modifier = Modifier.height(12.dp))
-
-            // Progress
-            Text(
-                text = "Progress: ${editedProgress.toInt()}%",
-                style = MaterialTheme.typography.bodyMedium,
-                color = colorScheme.onSurface
-            )
-
+            Text("Progress: ${editedProgress.toInt()}%", style = MaterialTheme.typography.bodyMedium)
             Slider(
                 value = editedProgress,
                 onValueChange = { editedProgress = it },
-                valueRange = 0f..100f,
-                colors = SliderDefaults.colors(
-                    thumbColor = Color(0xFF999999), activeTrackColor = Color(0xFF999999)
-                )
+                valueRange = 0f..100f
             )
-
             Spacer(modifier = Modifier.height(12.dp))
-
-            // Streak and Completion Row
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Custom streak incrementer
-                StreakIncrementer(
-                    value = streakDays, onValueChange = { streakDays = it })
-
+                StreakIncrementer(value = streakDays, onValueChange = { streakDays = it })
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(
                         checked = isCompleted,
-                        onCheckedChange = { isCompleted = it },
-                        colors = CheckboxDefaults.colors(checkedColor = colorScheme.primary)
+                        onCheckedChange = { isCompleted = it }
                     )
-                    Text("Mark as completed", color = colorScheme.onSurface)
+                    Text("Mark as completed")
                 }
             }
-
             Spacer(modifier = Modifier.height(12.dp))
-Row{
-           Column (verticalArrangement = Arrangement.Center,
-               horizontalAlignment = Alignment.CenterHorizontally
-           ){
-            Text(
-                text = "Due: ${formatDate(editedDueDate)}",
-                style = MaterialTheme.typography.bodySmall.copy(
-                    color = Color(0xFF666666)
-                )
-            )
-               Spacer(Modifier.height(16.dp))
-
-               if (showDatePicker) {
-                DueDatePickerDialog(
-                    onDateSelected = { selectedDate ->
-                        editedDueDate = selectedDate
-                    },
-                    onDismiss = {
-                        showDatePicker = false
-                    },
-
-                )
-            }
-               Row(
-                   horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
-               ) {
-            Button(onClick = { showDatePicker = true },colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF999999)
-            )) {
-                Text("Pick Due Date")
-            }
-                   Spacer(Modifier.width(32.dp))
-
-            // Action Buttons
-
-                TextButton(onClick = onCancel) {
-                    Text("Cancel", color = colorScheme.onSurface)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Due: ${formatDate(editedDueDate)}", style = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.height(16.dp))
+                if (showDatePicker) {
+                    DueDatePickerDialog(
+                        onDateSelected = { editedDueDate = it },
+                        onDismiss = { showDatePicker = false }
+                    )
                 }
-                Spacer(Modifier.width(8.dp))
-                Button(
-                    onClick = {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Button(onClick = { showDatePicker = true }) {
+                        Text("Pick Due Date")
+                    }
+                    TextButton(onClick = onCancel) {
+                        Text("Cancel")
+                    }
+                    Button(onClick = {
                         onSave(
                             task.copy(
                                 title = editedTitle,
@@ -397,19 +249,17 @@ Row{
                                 type = selectedType
                             )
                         )
-                    }, colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF999999)
-                    )
-                ) {
-                    Text("Save", color = colorScheme.onPrimary)
+                    }) {
+                        Text("Save")
+                    }
                 }
-            }}
-        }}
+            }
+        }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 fun TaskScreenPreview() {
     TasksApp()
