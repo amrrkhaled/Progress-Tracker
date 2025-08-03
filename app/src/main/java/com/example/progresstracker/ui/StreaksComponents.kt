@@ -36,12 +36,11 @@ fun StreakIncrementer(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
-            .padding(8.dp)
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
     ) {
         Text(text = "\uD83D\uDD25", // Fire emoji)
             fontSize = 20.sp,
-            modifier = Modifier.padding(end = 8.dp),
+            modifier = Modifier,
             color = MaterialTheme.colorScheme.primary)
         IconButton(
             onClick = { onValueChange(value - 1) }, enabled = value > 0
