@@ -1,7 +1,5 @@
-package com.example.progresstracker.ui.model
+package com.example.progresstracker.model
 
-
-import androidx.annotation.StringRes
 
 data class Task(
     val id:Int,

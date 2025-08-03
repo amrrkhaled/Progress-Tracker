@@ -20,9 +20,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.progresstracker.ui.model.Task
-import com.example.progresstracker.ui.model.TaskStatus
-import com.example.progresstracker.ui.model.TaskType
+import com.example.progresstracker.model.Task
+import com.example.progresstracker.model.TaskStatus
+import com.example.progresstracker.model.TaskType
 import com.example.progresstracker.utils.formatDate
 
 @RequiresApi(Build.VERSION_CODES.O)

@@ -1,9 +1,9 @@
 package com.example.progresstracker.ui
 
 import androidx.lifecycle.ViewModel
-import com.example.progresstracker.ui.model.Task
-import com.example.progresstracker.ui.model.TaskStatus
-import com.example.progresstracker.ui.model.TaskType
+import com.example.progresstracker.model.Task
+import com.example.progresstracker.model.TaskStatus
+import com.example.progresstracker.model.TaskType
 import com.example.progresstracker.ui.model.sampleTasks
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

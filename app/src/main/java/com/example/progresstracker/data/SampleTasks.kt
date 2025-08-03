@@ -1,5 +1,9 @@
 package com.example.progresstracker.ui.model
 
+import com.example.progresstracker.model.Task
+import com.example.progresstracker.model.TaskStatus
+import com.example.progresstracker.model.TaskType
+
 val sampleTasks = listOf(
     Task(
         id = 1,
