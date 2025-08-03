@@ -40,6 +40,7 @@ class TasksScreenViewModel : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 isEditing = true,
+                isAddingNewTask = true,
                 currentTaskId = newTaskId,
                 tasks = listOf(newTask) + currentState.tasks            )
         }
@@ -50,7 +51,7 @@ class TasksScreenViewModel : ViewModel() {
             val updatedList = currentState.tasks.map { task ->
                 if (task.id == updatedTask.id) updatedTask else task
             }
-            currentState.copy(tasks = updatedList)
+            currentState.copy(tasks = updatedList, isAddingNewTask = false)
         }
         cancelEditing()
     }
@@ -63,8 +64,11 @@ class TasksScreenViewModel : ViewModel() {
     }
 
     fun cancelEditing() {
+        if(_uiState.value.isAddingNewTask) {
+            deleteTask(_uiState.value.currentTaskId ?: -1)
+        }
         _uiState.update { currentState ->
-            currentState.copy(isEditing = false, currentTaskId = null)
+            currentState.copy(isEditing = false, isAddingNewTask = false, currentTaskId = null)
         }
     }
 

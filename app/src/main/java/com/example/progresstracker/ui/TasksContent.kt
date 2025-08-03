@@ -64,7 +64,12 @@ fun TaskItem(
     if (uiState.currentTaskId == task.id) {
         TaskItemEditMode(task = task, onSave = onSave, onCancel = onCancel)
     } else {
-        TaskItemViewMode(task = task, onDeleteTask = onDeleteTask, onEditTask = onEditTask, modifier = modifier)
+        TaskItemViewMode(
+            task = task,
+            onDeleteTask = onDeleteTask,
+            onEditTask = onEditTask,
+            modifier = modifier
+        )
     }
 }
 
@@ -102,15 +107,34 @@ fun TaskItemViewMode(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(task.title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(task.type.name, style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium))
+                Text(
+                    task.title,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    task.type.name,
+                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
+                )
             }
             Spacer(Modifier.height(8.dp))
-            Text(task.description, style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(
+                task.description,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
             Spacer(Modifier.height(12.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text("Due: ${formatDate(task.dueDate)}", style = MaterialTheme.typography.bodySmall)
-                Text("Status: ${task.status.statusText}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    "Status: ${task.status.statusText}",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
             Spacer(Modifier.height(8.dp))
             Row(
@@ -119,7 +143,10 @@ fun TaskItemViewMode(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Progress: ${task.progress}%", style = MaterialTheme.typography.bodyLarge)
-                Text(" ${task.streaks} \uD83D\uDD25", style = MaterialTheme.typography.bodyLarge)
+                Row {
+                    Text(" ${task.streaks} ", style = MaterialTheme.typography.bodyLarge)
+                    AnimatedFireIcon()
+                }
                 Row {
                     IconButton(onClick = { onEditTask(task.id) }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit Task")
@@ -181,7 +208,9 @@ fun TaskItemEditMode(task: Task, onSave: (Task) -> Unit, onCancel: () -> Unit) {
                     onValueChange = {},
                     label = { Text("Select Type") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier.menuAnchor().fillMaxWidth()
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth()
                 )
                 ExposedDropdownMenu(
                     expanded = expanded,
@@ -199,7 +228,10 @@ fun TaskItemEditMode(task: Task, onSave: (Task) -> Unit, onCancel: () -> Unit) {
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Text("Progress: ${editedProgress.toInt()}%", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Progress: ${editedProgress.toInt()}%",
+                style = MaterialTheme.typography.bodyMedium
+            )
             Slider(
                 value = editedProgress,
                 onValueChange = { editedProgress = it },
@@ -222,7 +254,10 @@ fun TaskItemEditMode(task: Task, onSave: (Task) -> Unit, onCancel: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(12.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("Due: ${formatDate(editedDueDate)}", style = MaterialTheme.typography.bodySmall)
+                Text(
+                    "Due: ${formatDate(editedDueDate)}",
+                    style = MaterialTheme.typography.bodySmall
+                )
                 Spacer(Modifier.height(16.dp))
                 if (showDatePicker) {
                     DueDatePickerDialog(
@@ -230,7 +265,10 @@ fun TaskItemEditMode(task: Task, onSave: (Task) -> Unit, onCancel: () -> Unit) {
                         onDismiss = { showDatePicker = false }
                     )
                 }
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     Button(onClick = { showDatePicker = true }) {
                         Text("Pick Due Date")
                     }
@@ -244,7 +282,7 @@ fun TaskItemEditMode(task: Task, onSave: (Task) -> Unit, onCancel: () -> Unit) {
                                 description = editedDescription,
                                 progress = editedProgress.toInt(),
                                 streaks = streakDays,
-                                status = if (isCompleted) TaskStatus.COMPLETED else TaskStatus.IN_PROGRESS,
+                                status = if (isCompleted) TaskStatus.COMPLETED else if (editedProgress > 0) TaskStatus.IN_PROGRESS else TaskStatus.NOT_STARTED,
                                 dueDate = editedDueDate,
                                 type = selectedType
                             )
